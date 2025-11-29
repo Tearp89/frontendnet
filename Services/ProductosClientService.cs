@@ -1,3 +1,4 @@
+using System.Text.Json;
 using frontendnet.Models;
 
 namespace frontendnet.Services;
@@ -14,10 +15,15 @@ public class ProductosClientService(HttpClient client)
         return await client.GetFromJsonAsync<Producto>($"api/productos/{id}");
     }
 
-    public async Task PostAsync(Producto producto)
+    public async Task<int> PostAsync(Producto producto)
     {
         var response = await client.PostAsJsonAsync($"api/productos", producto);
         response.EnsureSuccessStatusCode();
+        using var stream = await response.Content.ReadAsStreamAsync();
+        using var doc = await JsonDocument.ParseAsync(stream);
+
+        int id = doc.RootElement.GetProperty("id").GetInt32();
+        return id;
     }
 
     public async Task PutAsync(Producto producto)
@@ -44,7 +50,7 @@ public class ProductosClientService(HttpClient client)
         response.EnsureSuccessStatusCode();
     }
 
-        public async Task<Producto?> GetByIdAsync(int id)
+    public async Task<Producto?> GetByIdAsync(int id)
     {
         return await client.GetFromJsonAsync<Producto>($"api/productos/{id}");
     }

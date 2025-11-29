@@ -24,7 +24,7 @@ public class ProductosController(ProductosClientService productos, CategoriasCli
                 return RedirectToAction("Salir", "Auth");
             }
         }
-        
+
         if (User.FindFirstValue(ClaimTypes.Role) == "Administrador")
         {
             ViewBag.SoloAdmin = true;
@@ -36,40 +36,13 @@ public class ProductosController(ProductosClientService productos, CategoriasCli
     }
 
     public async Task<IActionResult> Detalle(int id)
-{
-    Producto? item = null;
-    ViewBag.Url = configuration["UrlWebAPI"];
-    try
     {
-        item = await productos.GetAsync(id);
-        if (item == null) return NotFound();
-    }
-    catch (HttpRequestException ex)
-    {
-        if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            return RedirectToAction("Salir", "Auth");
-        }
-    }
-    return View(item);
-}
-
-public async Task<IActionResult> Crear()
-{
-    await ProductosDropDownListAsync();
-    return View();
-}
-
-[HttpPost]
-public async Task<IActionResult> CrearAsync(Producto itemToCreate)
-{
-    ViewBag.Url = configuration["UrlWebAPI"];
-    if (ModelState.IsValid)
-    {
+        Producto? item = null;
+        ViewBag.Url = configuration["UrlWebAPI"];
         try
         {
-            await productos.PostAsync(itemToCreate);
-            return RedirectToAction(nameof(Index));
+            item = await productos.GetAsync(id);
+            if (item == null) return NotFound();
         }
         catch (HttpRequestException ex)
         {
@@ -78,49 +51,57 @@ public async Task<IActionResult> CrearAsync(Producto itemToCreate)
                 return RedirectToAction("Salir", "Auth");
             }
         }
-        
+        return View(item);
+    }
+
+    public async Task<IActionResult> Crear()
+    {
         await ProductosDropDownListAsync();
-        ModelState.AddModelError("Nombre", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CrearAsync(Producto itemToCreate)
+    {
+        ViewBag.Url = configuration["UrlWebAPI"];
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                int nuevoId = await productos.PostAsync(itemToCreate);
+
+                if (itemToCreate.ArchivoId != null)
+                {
+                    itemToCreate.ProductoId = nuevoId;
+                    await productos.PutAsync(itemToCreate);
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Salir", "Auth");
+                }
+            }
+
+            await ProductosDropDownListAsync();
+            ModelState.AddModelError("Nombre", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
+            return View(itemToCreate);
+        }
+
+        await ProductosDropDownListAsync();
         return View(itemToCreate);
     }
-    
-    await ProductosDropDownListAsync();
-    return View(itemToCreate);
-}
 
-public async Task<IActionResult> Editar(int id)
-{
-    Producto? itemToEdit = null;
-    ViewBag.Url = configuration["UrlWebAPI"];
-    try
+    public async Task<IActionResult> Editar(int id)
     {
-        itemToEdit = await productos.GetAsync(id);
-        if (itemToEdit == null) return NotFound();
-    }
-    catch (HttpRequestException ex)
-    {
-        if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            return RedirectToAction("Salir", "Auth");
-        }
-    }
-    
-    await ProductosDropDownListAsync();
-    return View(itemToEdit);
-}
-
-[HttpPost]
-public async Task<IActionResult> Editar(int id, Producto itemToEdit)
-{
-    if (id != itemToEdit.ProductoId) return NotFound();
-
-    ViewBag.Url = configuration["UrlWebAPI"];
-    if (ModelState.IsValid || !ModelState.IsValid)
-    {
+        Producto? itemToEdit = null;
+        ViewBag.Url = configuration["UrlWebAPI"];
         try
         {
-            await productos.PutAsync(itemToEdit);
-            return RedirectToAction(nameof(Index));
+            itemToEdit = await productos.GetAsync(id);
+            if (itemToEdit == null) return NotFound();
         }
         catch (HttpRequestException ex)
         {
@@ -129,50 +110,54 @@ public async Task<IActionResult> Editar(int id, Producto itemToEdit)
                 return RedirectToAction("Salir", "Auth");
             }
         }
-        
+
         await ProductosDropDownListAsync();
-        ModelState.AddModelError("Nombre", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
         return View(itemToEdit);
     }
-    
-    await ProductosDropDownListAsync();
-    return View(itemToEdit);
-}
 
-public async Task<IActionResult> Eliminar(int id, bool? showError = false)
-{
-    Producto? itemToDelete = null;
-    ViewBag.Url = configuration["UrlWebAPI"];
-    try
+    [HttpPost]
+    public async Task<IActionResult> Editar(int id, Producto itemToEdit)
     {
-        itemToDelete = await productos.GetAsync(id);
-        if (itemToDelete == null) return NotFound();
+        if (id != itemToEdit.ProductoId) return NotFound();
 
-        if (showError.GetValueOrDefault())
+        ViewBag.Url = configuration["UrlWebAPI"];
+        if (ModelState.IsValid || !ModelState.IsValid)
         {
-            ViewData["ErrorMessage"] = "No ha sido posible realizar la acción. Inténtelo nuevamente.";
-        }
-    }
-    catch (HttpRequestException ex)
-    {
-        if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            return RedirectToAction("Salir", "Auth");
-        }
-    }
-    return View(itemToDelete);
-}
+            try
+            {
+                await productos.PutAsync(itemToEdit);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Salir", "Auth");
+                }
+            }
 
-[HttpPost]
-public async Task<IActionResult> Eliminar(int id)
-{
-    ViewBag.Url = configuration["UrlWebAPI"];
-    if (ModelState.IsValid)
+            await ProductosDropDownListAsync();
+            ModelState.AddModelError("Nombre", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
+            return View(itemToEdit);
+        }
+
+        await ProductosDropDownListAsync();
+        return View(itemToEdit);
+    }
+
+    public async Task<IActionResult> Eliminar(int id, bool? showError = false)
     {
+        Producto? itemToDelete = null;
+        ViewBag.Url = configuration["UrlWebAPI"];
         try
         {
-            await productos.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            itemToDelete = await productos.GetAsync(id);
+            if (itemToDelete == null) return NotFound();
+
+            if (showError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "No ha sido posible realizar la acción. Inténtelo nuevamente.";
+            }
         }
         catch (HttpRequestException ex)
         {
@@ -181,82 +166,136 @@ public async Task<IActionResult> Eliminar(int id)
                 return RedirectToAction("Salir", "Auth");
             }
         }
+        return View(itemToDelete);
     }
-    // En caso de error
-    return RedirectToAction(nameof(Eliminar), new { id, showError = true });
-}
 
-[AcceptVerbs("GET", "POST")]
-public IActionResult ValidarPoster(string Poster)
-{
-    if (Uri.IsWellFormedUriString(Poster, UriKind.Absolute) || Poster.Equals("N/A"))
+    [HttpPost]
+    public async Task<IActionResult> Eliminar(int id)
     {
-        return Json(true);
-    }
-    return Json(false);
-}
-
-public async Task<IActionResult> Categorias(int id)
-{
-    Producto? itemToView = null;
-    try
-    {
-        itemToView = await productos.GetAsync(id);
-        if (itemToView == null) return NotFound();
-    }
-    catch (HttpRequestException ex)
-    {
-        if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        ViewBag.Url = configuration["UrlWebAPI"];
+        if (ModelState.IsValid)
         {
-            return RedirectToAction("Salir", "Auth");
+            try
+            {
+                await productos.DeleteAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Salir", "Auth");
+                }
+            }
         }
+        // En caso de error
+        return RedirectToAction(nameof(Eliminar), new { id, showError = true });
     }
 
-    ViewData["ProductoId"] = itemToView!.ProductoId;
-    ViewBag.Url = configuration["UrlWebAPI"];
-    return View(itemToView);
-}
-
-public async Task<IActionResult> CategoriasAgregar(int id)
-{
-    ProductoCategoria? itemToView = null;
-    try
+    [AcceptVerbs("GET", "POST")]
+    public IActionResult ValidarPoster(string Poster)
     {
-        Producto? producto = await productos.GetAsync(id);
-        if (producto == null) return NotFound();
-
-        await CategoriasDropDownListAsync();
-
-        itemToView = new ProductoCategoria { Producto = producto };
-    }
-    catch (HttpRequestException ex)
-    {
-        if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        if (Uri.IsWellFormedUriString(Poster, UriKind.Absolute) || Poster.Equals("N/A"))
         {
-            return RedirectToAction("Salir", "Auth");
+            return Json(true);
         }
+        return Json(false);
     }
 
-    ViewBag.Url = configuration["UrlWebAPI"];
-    return View(itemToView);
-}
-
-[HttpPost]
-public async Task<IActionResult> CategoriasAgregar(int id, int categoriaId)
-{
-    Producto? producto = null;
-    if (ModelState.IsValid)
+    public async Task<IActionResult> Categorias(int id)
     {
+        Producto? itemToView = null;
         try
         {
-            producto = await productos.GetAsync(id);
+            itemToView = await productos.GetAsync(id);
+            if (itemToView == null) return NotFound();
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Salir", "Auth");
+            }
+        }
+
+        ViewData["ProductoId"] = itemToView!.ProductoId;
+        ViewBag.Url = configuration["UrlWebAPI"];
+        return View(itemToView);
+    }
+
+    public async Task<IActionResult> CategoriasAgregar(int id)
+    {
+        ProductoCategoria? itemToView = null;
+        try
+        {
+            Producto? producto = await productos.GetAsync(id);
+            if (producto == null) return NotFound();
+
+            await CategoriasDropDownListAsync();
+
+            itemToView = new ProductoCategoria { Producto = producto };
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Salir", "Auth");
+            }
+        }
+
+        ViewBag.Url = configuration["UrlWebAPI"];
+        return View(itemToView);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CategoriasAgregar(int id, int categoriaId)
+    {
+        Producto? producto = null;
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                producto = await productos.GetAsync(id);
+                if (producto == null) return NotFound();
+
+                Categoria? categoria = await categorias.GetAsync(categoriaId);
+                if (categoria == null) return NotFound();
+
+                await productos.PostAsync(id, categoriaId);
+                return RedirectToAction(nameof(Categorias), new { id });
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Salir", "Auth");
+                }
+            }
+        }
+        // En caso de error
+        ViewBag.Url = configuration["UrlWebAPI"];
+        ModelState.AddModelError("Id", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
+        await CategoriasDropDownListAsync();
+        return View(new ProductoCategoria { Producto = producto });
+    }
+
+    public async Task<IActionResult> CategoriasRemover(int id, int categoriaId, bool? showError = false)
+    {
+        ProductoCategoria? itemToView = null;
+        try
+        {
+            Producto? producto = await productos.GetAsync(id);
             if (producto == null) return NotFound();
 
             Categoria? categoria = await categorias.GetAsync(categoriaId);
             if (categoria == null) return NotFound();
 
-            await productos.PostAsync(id, categoriaId);
-            return RedirectToAction(nameof(Categorias), new { id });
+            itemToView = new ProductoCategoria { Producto = producto, CategoriaId = categoriaId, Nombre = categoria.Nombre };
+
+            if (showError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "No ha sido posible realizar la acción. Inténtelo nuevamente.";
+            }
         }
         catch (HttpRequestException ex)
         {
@@ -265,75 +304,42 @@ public async Task<IActionResult> CategoriasAgregar(int id, int categoriaId)
                 return RedirectToAction("Salir", "Auth");
             }
         }
-    }
-    // En caso de error
-    ViewBag.Url = configuration["UrlWebAPI"];
-    ModelState.AddModelError("Id", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
-    await CategoriasDropDownListAsync();
-    return View(new ProductoCategoria { Producto = producto });
-}
 
-public async Task<IActionResult> CategoriasRemover(int id, int categoriaId, bool? showError = false)
-{
-    ProductoCategoria? itemToView = null;
-    try
-    {
-        Producto? producto = await productos.GetAsync(id);
-        if (producto == null) return NotFound();
-
-        Categoria? categoria = await categorias.GetAsync(categoriaId);
-        if (categoria == null) return NotFound();
-
-        itemToView = new ProductoCategoria { Producto = producto, CategoriaId = categoriaId, Nombre = categoria.Nombre };
-
-        if (showError.GetValueOrDefault())
-        {
-            ViewData["ErrorMessage"] = "No ha sido posible realizar la acción. Inténtelo nuevamente.";
-        }
-    }
-    catch (HttpRequestException ex)
-    {
-        if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            return RedirectToAction("Salir", "Auth");
-        }
+        ViewBag.Url = configuration["UrlWebAPI"];
+        return View(itemToView);
     }
 
-    ViewBag.Url = configuration["UrlWebAPI"];
-    return View(itemToView);
-}
-
-[HttpPost]
-public async Task<IActionResult> CategoriasRemover(int id, int categoriaId)
-{
-    if (ModelState.IsValid)
+    [HttpPost]
+    public async Task<IActionResult> CategoriasRemover(int id, int categoriaId)
     {
-        try
+        if (ModelState.IsValid)
         {
-            await productos.DeleteAsync(id, categoriaId);
-            return RedirectToAction(nameof(Categorias), new { id });
-        }
-        catch (HttpRequestException ex)
-        {
-            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            try
             {
-                return RedirectToAction("Salir", "Auth");
+                await productos.DeleteAsync(id, categoriaId);
+                return RedirectToAction(nameof(Categorias), new { id });
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Salir", "Auth");
+                }
             }
         }
+        // En caso de error
+        return RedirectToAction(nameof(CategoriasRemover), new { id, categoriaId, showError = true });
     }
-    // En caso de error
-    return RedirectToAction(nameof(CategoriasRemover), new { id, categoriaId, showError = true });
-}
 
-private async Task CategoriasDropDownListAsync(object? itemSeleccionado = null)
-{
-    var listado = await categorias.GetAsync();
-    ViewBag.Categoria = new SelectList(listado, "CategoriaId", "Nombre", itemSeleccionado);
-}
+    private async Task CategoriasDropDownListAsync(object? itemSeleccionado = null)
+    {
+        var listado = await categorias.GetAsync();
+        ViewBag.Categoria = new SelectList(listado, "CategoriaId", "Nombre", itemSeleccionado);
+    }
 
-private async Task ProductosDropDownListAsync(object? itemSeleccionado = null)
-{
-    var listado = await archivos.GetAsync();
-    ViewBag.Archivo = new SelectList(listado, "ArchivoId", "Nombre", itemSeleccionado);
-}
+    private async Task ProductosDropDownListAsync(object? itemSeleccionado = null)
+    {
+        var listado = await archivos.GetAsync();
+        ViewBag.Archivo = new SelectList(listado, "ArchivoId", "Nombre", itemSeleccionado);
+    }
 }
