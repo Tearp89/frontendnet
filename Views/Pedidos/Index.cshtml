@@ -1,0 +1,61 @@
+@model List<frontendnet.Models.Pedido>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Pedidos";
+    ViewData["SubTitle"] = "Historial";
+}
+
+<h2 class="mb-3">
+    @ViewData["Title"]
+    <small class="text-muted fs-5">@ViewData["SubTitle"]</small>
+</h2>
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="alert alert-warning mt-4" role="alert">
+        No tienes pedidos aún. Cuando compres algo desde el carrito, aparecerá aquí.
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-striped table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th style="width: 160px;">Total</th>
+                        <th style="width: 140px;">Estado</th>
+                        <th style="width: 200px;">Fecha</th>
+                        <th class="text-end" style="width: 120px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td>@p.Id</td>
+                            <td>@p.Total.ToString("C")</td>
+                            <td>
+                                <span class="badge
+                                    @(p.Estado == "CREADO" ? "bg-success" :
+                                      p.Estado == "CANCELADO" ? "bg-danger" :
+                                      "bg-secondary")">
+                                    @p.Estado
+                                </span>
+                            </td>
+                            <td>@p.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-end">
+                                <a asp-action="Detalle" asp-route-id="@p.Id"
+                                   class="btn btn-primary btn-sm">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

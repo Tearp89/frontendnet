@@ -1,0 +1,84 @@
+@model frontendnet.Models.Pedido
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Detalle de pedido";
+}
+
+<h2 class="mb-3">
+    @ViewData["Title"]
+    <small class="text-muted fs-5">#@Model.Id</small>
+</h2>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="mb-1">
+                    <strong>Estado:</strong>
+                    <span class="badge
+                        @(Model.Estado == "CREADO" ? "bg-success" :
+                          Model.Estado == "CANCELADO" ? "bg-danger" :
+                          "bg-secondary")">
+                        @Model.Estado
+                    </span>
+                </p>
+                <p class="mb-1">
+                    <strong>Total:</strong>
+                    @Model.Total.ToString("C")
+                </p>
+                <p class="mb-1">
+                    <strong>Fecha de creación:</strong><br />
+                    @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                </p>
+                <p class="mb-0">
+                    <strong>Última actualización:</strong><br />
+                    @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-3">Productos</h4>
+
+@if (Model.Carrito?.Productos == null || !Model.Carrito.Productos.Any())
+{
+    <div class="alert alert-info mt-2">
+        Este pedido no tiene productos asociados.
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th style="width: 140px;">Precio</th>
+                        <th style="width: 120px;">Cantidad</th>
+                        <th style="width: 160px;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Carrito.Productos)
+                    {
+                        <tr>
+                            <td>@p.Titulo</td>
+                            <td>@p.Precio.ToString("C")</td>
+                            <td>@p.CarritoProducto.Cantidad</td>
+                            <td>@p.CarritoProducto.Subtotal.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        ← Volver al historial
+    </a>
+</div>
