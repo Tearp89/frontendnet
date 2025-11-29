@@ -1,0 +1,95 @@
+@model Producto
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Detalle de producto";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Columna izquierda: imagen grande -->
+        <div class="col-md-5 text-center mb-4">
+            <div class="bg-white border rounded p-3">
+                <img src="@(Model.ArchivoId == null 
+                                         ? "https://placehold.co/500x400/FFF/999?text=Artículo" 
+                                         : $"{ViewBag.Url}/api/archivos/{Model.ArchivoId}")" alt="@Model.Titulo" class="img-fluid"
+                    style="max-height: 400px; object-fit: contain;">
+            </div>
+        </div>
+
+        <!-- Columna central: título y descripción -->
+        <div class="col-md-4 mb-4">
+            <h3 class="mb-2">@Model.Titulo</h3>
+
+            @if (Model.Categorias != null && Model.Categorias.Any())
+            {
+                <p class="small mb-2">
+                    @foreach (var cat in Model.Categorias)
+                    {
+                        <span class="badge rounded-pill text-bg-warning me-1">@cat.Nombre</span>
+                    }
+                </p>
+            }
+
+            <hr />
+
+            <h4 class="text-success mb-3">
+                @Model.Precio.ToString("C")
+            </h4>
+
+            <p class="small text-muted mb-1">
+                Vendido y enviado por <strong>Mercado Libre FeI</strong>
+            </p>
+
+            <p class="text-muted mt-3" style="white-space: pre-line;">
+                @Model.Descripcion
+            </p>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title text-success mb-2">
+                        @Model.Precio.ToString("C")
+                    </h4>
+
+                    <p class="text-success small mb-2">
+                        <i class="bi bi-lightning-fill"></i> Envío gratis
+                    </p>
+
+                    <p class="small mb-3">
+                        Disponible <span class="text-success fw-semibold">en stock</span>
+                    </p>
+
+                    <form asp-controller="Comprar" asp-action="AgregarItem" method="post"
+                        class="mb-2 js-add-to-cart-form" data-product-title="@Model.Titulo" data-product-image="@(Model.ArchivoId == null
+                                                                                                        ? "https://placehold.co/80x80/FFF/999?text=Artículo"
+                                                                                                        : $"{ViewBag.Url}/api/archivos/{Model.ArchivoId}")">
+
+                        <input type="hidden" name="productoId" value="@Model.ProductoId" />
+
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label small mb-1">Cantidad</label>
+                            <select id="cantidad" name="cantidad" class="form-select form-select-sm w-50">
+                                @for (int i = 1; i <= 10; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 mb-2">
+                            <i class="bi bi-cart-plus"></i> Agregar al carrito
+                        </button>
+                    </form>
+
+
+                    <hr />
+
+                    <p class="small text-muted mb-0">
+                        <i class="bi bi-shield-check"></i> Compra protegida por Mercado Libre FeI.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

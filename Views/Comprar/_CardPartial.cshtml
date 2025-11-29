@@ -1,49 +1,73 @@
 @model Producto
 
 <div class="card h-100">
-    <div class="card-header text-center bg-white pt-3">
-        <img src="@(Model.ArchivoId == null 
-            ? "https://placehold.co/300x200/FFF/999?text=Artículo" 
-            : $"{ViewBag.Url}/api/archivos/{Model.ArchivoId}")"
-        alt="@Model.Titulo" class="Portada card-img-top data-url" data-url="@ViewBag.Url" style="max-height: 200px;">
-    </div>
-    <div class="card-body d-flex flex-column">
-        <p class="card-text">@Model.Titulo</p>
-        <h5 class="card-title">@Html.DisplayFor(model => model.Precio)</h5>
-        <p class="card-text">
-            @foreach (var cat in Model.Categorias!)
-            {
-                <span class="badge rounded-pill text-bg-warning">@cat.Nombre</span>
-            }
-        </p>
-        <p class="mt-auto card-text text-success fw-semibold small"><i class="bi bi-lightning-fill"></i> Envío gratis</p>
-    </div>
-    
-    @* --- BEGIN: ADD TO CART FORM --- *@
-    <div class="card-footer">
-        <form asp-controller="Comprar" asp-action="AgregarItem" method="post" class="d-flex justify-content-between align-items-center">
-            
-            @* Hidden Field for Product ID (required by CarritoItem DTO) *@
-            <input type="hidden" name="ProductoId" value="@Model.ProductoId" />
 
-            @* Quantity Input *@
+    @* Toda la tarjeta (header + body) lleva al Detalle *@
+    <a asp-controller="Comprar"
+       asp-action="Detalle"
+       asp-route-id="@Model.ProductoId"
+       class="text-decoration-none text-reset">
+
+        <div class="card-header text-center bg-white pt-3">
+            <img src="@(Model.ArchivoId == null 
+                ? "https://placehold.co/300x200/FFF/999?text=Artículo" 
+                : $"{ViewBag.Url}/api/archivos/{Model.ArchivoId}")"
+                 alt="@Model.Titulo"
+                 class="Portada card-img-top data-url"
+                 data-url="@ViewBag.Url"
+                 style="max-height: 200px;">
+        </div>
+
+        <div class="card-body d-flex flex-column">
+            <p class="card-text fw-semibold">@Model.Titulo</p>
+            <h5 class="card-title">@Html.DisplayFor(m => m.Precio)</h5>
+
+            <p class="card-text">
+                @foreach (var cat in Model.Categorias!)
+                {
+                    <span class="badge rounded-pill text-bg-warning">@cat.Nombre</span>
+                }
+            </p>
+
+            <p class="mt-auto card-text text-success fw-semibold small">
+                <i class="bi bi-lightning-fill"></i> Envío gratis
+            </p>
+        </div>
+    </a>
+
+    @* Footer solo para agregar al carrito *@
+        <!-- FOOTER: FORMULARIO QUE INTERCEPTAREMOS CON JS -->
+    <div class="card-footer">
+        <form asp-controller="Comprar"
+              asp-action="AgregarItem"
+              method="post"
+              class="d-flex justify-content-between align-items-center js-add-to-cart-form"
+              data-product-title="@Model.Titulo"
+              data-product-image="@(Model.ArchivoId == null 
+                    ? "https://placehold.co/80x80/FFF/999?text=Artículo"
+                    : $"{ViewBag.Url}/api/archivos/{Model.ArchivoId}")">
+            
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="productoId" value="@Model.ProductoId" />
+
             <div class="input-group input-group-sm w-50 me-2">
                 <span class="input-group-text">Cant.</span>
-                <input type="number" 
-                       name="Cantidad" 
-                       value="1" 
-                       min="1" 
-                       max="100" 
-                       class="form-control" 
+                <input type="number"
+                       name="cantidad"
+                       value="1"
+                       min="1"
+                       max="100"
+                       class="form-control"
                        title="Cantidad"
                        required />
             </div>
 
-            @* Submit Button *@
-            <button type="submit" class="btn btn-primary btn-sm w-50" title="Agregar al Carrito">
+            <button type="submit"
+                    class="btn btn-primary btn-sm w-50"
+                    title="Agregar al carrito">
                 <i class="bi bi-cart-plus me-1"></i> Agregar
             </button>
         </form>
     </div>
-    @* --- END: ADD TO CART FORM --- *@
 </div>

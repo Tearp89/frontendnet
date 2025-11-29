@@ -27,20 +27,30 @@ public class ComprarController : Controller
 
     // VISTA DEL CARRITO
     public async Task<IActionResult> Carrito()
-{
-    var carrito = await _carrito.GetAsync();  
-    return View("~/Views/Carrito/Index.cshtml", carrito);
-}
+    {
+        var carrito = await _carrito.GetAsync();
+        return View("~/Views/Carrito/Index.cshtml", carrito);
+    }
 
 
     // ------------------ MÉTODOS DEL CARRITO ------------------
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> AgregarItem(int productoId, int cantidad = 1)
     {
         await _carrito.AddItemAsync(productoId, cantidad);
+
+        // Si viene por AJAX (modal tipo Steam) solo regresamos 200 OK
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            return Ok();
+        }
+
+        // Si es un post normal, seguimos como antes: ir al carrito
         return RedirectToAction("Carrito");
     }
+
 
     [HttpPost]
     public async Task<IActionResult> ActualizarItem(int id, int cantidad)
@@ -60,8 +70,10 @@ public class ComprarController : Controller
     public async Task<IActionResult> Vaciar()
     {
         await _carrito.ClearAsync();
+        TempData["Mensaje"] = "El carrito se vació correctamente";
         return RedirectToAction("Carrito");
     }
+
 
     [HttpPost]
     public async Task<IActionResult> Checkout()
@@ -69,6 +81,15 @@ public class ComprarController : Controller
         await _carrito.CheckoutAsync();
         TempData["Mensaje"] = "Compra realizada con éxito";
         return RedirectToAction("Carrito");
+    }
+
+    public async Task<IActionResult> Detalle(int id)
+    {
+        var producto = await _productos.GetByIdAsync(id);
+        if (producto == null)
+            return NotFound();
+
+        return View(producto); // Views/Comprar/Detalle.cshtml
     }
 
 }

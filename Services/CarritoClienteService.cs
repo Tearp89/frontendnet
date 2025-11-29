@@ -42,10 +42,11 @@ public class CarritoClienteService
         response.EnsureSuccessStatusCode();
     }
 
+
     public async Task CheckoutAsync()
-{
-    var response = await client.PatchAsync("api/carrito", null);
-    response.EnsureSuccessStatusCode();
-}
+    {
+        var response = await client.PatchAsync("api/carrito", null);
+        response.EnsureSuccessStatusCode();
+    }
 
 }

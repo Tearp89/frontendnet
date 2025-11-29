@@ -68,16 +68,25 @@ else
 }
 
 <div class="d-flex gap-3 mt-4">
-    <form asp-action="Checkout" method="post">
-        <button class="btn btn-success">
-            Finalizar compra
-        </button>
-    </form>
+<form id="formVaciar" asp-action="Vaciar" method="post"></form>
 
-    <form asp-action="Vaciar" method="post">
-        <button class="btn btn-outline-danger">
-            Vaciar carrito
-        </button>
-    </form>
+<button 
+    class="btn btn-outline-danger"
+    data-confirm="¿Seguro que quieres vaciar el carrito?"
+    data-form="formVaciar">
+    Vaciar carrito
+</button>
+
+
+ <form id="formCheckout" asp-action="Checkout" method="post"></form>
+
+<button 
+    class="btn btn-success"
+    data-confirm="¿Deseas finalizar la compra ahora?"
+    data-form="formCheckout">
+    Finalizar compra
+</button>
+
 </div>
+
 

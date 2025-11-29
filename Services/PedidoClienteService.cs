@@ -24,5 +24,14 @@ namespace frontendnet.Services
         {
             return await _client.GetFromJsonAsync<Pedido>($"api/pedido/{id}");
         }
+
+        public async Task<Pedido?> ComprarAhoraAsync(int productoId, int cantidad = 1)
+        {
+            var payload = new { productoId, cantidad };
+            var resp = await _client.PostAsJsonAsync("api/pedido", payload);
+            resp.EnsureSuccessStatusCode();
+            return await resp.Content.ReadFromJsonAsync<Pedido>();
+        }
+
     }
 }

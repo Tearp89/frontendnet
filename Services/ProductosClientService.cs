@@ -43,4 +43,9 @@ public class ProductosClientService(HttpClient client)
         var response = await client.DeleteAsync($"api/productos/{id}/categoria/{categoriaid}");
         response.EnsureSuccessStatusCode();
     }
+
+        public async Task<Producto?> GetByIdAsync(int id)
+    {
+        return await client.GetFromJsonAsync<Producto>($"api/productos/{id}");
+    }
 }
