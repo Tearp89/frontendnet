@@ -1,6 +1,7 @@
 @model Categoria
 
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "Categorías";
     ViewData["SubTitle"] = "Detalle";
 }
@@ -15,7 +16,7 @@
 
 <h2 class="text-center mb-3">@ViewData["Title"] <small class="text-muted fs-5">@ViewData["SubTitle"]</small></h2>
 
-<partial name="_DetallePartial" />
+<partial name="_DetallePartial" model="Model"/>
 
 <div class="text-center mt-3">
     <a class="btn btn-sm btn-outline-secondary" asp-action="Index" title="Cancelar">Cancelar</a>

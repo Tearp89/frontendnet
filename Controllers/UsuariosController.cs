@@ -52,6 +52,7 @@ public async Task<IActionResult> Crear()
 }
 
 [HttpPost]
+[ActionName("Crear")]
 public async Task<IActionResult> CrearAsync(UsuarioPwd itemToCreate)
 {
     if (ModelState.IsValid)
@@ -67,21 +68,33 @@ public async Task<IActionResult> CrearAsync(UsuarioPwd itemToCreate)
             {
                 return RedirectToAction("Salir", "Auth");
             }
+            
+            // AÑADIR: Manejo de error 400 (Bad Request)
+            if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                // Asumimos que el error 400 es por correo duplicado o datos inválidos
+                ModelState.AddModelError("Email", "El correo electrónico ya se encuentra registrado o los datos son inválidos.");
+                await RolesDropDownListAsync();
+                return View(itemToCreate);
+            }
         }
     }
     
+    // Este código se ejecuta si ModelState es inválido o si la API falla con un error 
+    // no manejado (ej. 500), manteniendo el mensaje genérico.
     ModelState.AddModelError("Email", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
     await RolesDropDownListAsync();
     return View(itemToCreate);
 }
 
-[HttpGet("{controller}/{email}")]
-public async Task<IActionResult> EditarAsync(string email)
+//[HttpGet("{controller}/{email}")]
+[HttpGet]
+public async Task<IActionResult> EditarAsync(string id)
 {
     Usuario? itemToEdit = null;
     try
     {
-        itemToEdit = await usuarios.GetAsync(email);
+        itemToEdit = await usuarios.GetAsync(id);
         if (itemToEdit == null) return NotFound();
     }
     catch (HttpRequestException ex)
@@ -92,12 +105,13 @@ public async Task<IActionResult> EditarAsync(string email)
         }
     }
 
-    ViewBag.PuedeEditar = (User.Identity?.Name == email);
+    ViewBag.PuedeEditar = (User.Identity?.Name == id);
     await RolesDropDownListAsync(itemToEdit?.Rol);
     return View(itemToEdit);
 }
 
-[HttpPost("{controller}/{email}")]
+//[HttpPost("{controller}/{email}")]
+[HttpPost]
 public async Task<IActionResult> EditarAsync(string email, Usuario itemToEdit)
 {
     if (email != itemToEdit.Email) return NotFound();

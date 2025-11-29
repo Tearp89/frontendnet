@@ -88,7 +88,7 @@ public async Task<IActionResult> CrearAsync(Producto itemToCreate)
     return View(itemToCreate);
 }
 
-public async Task<IActionResult> EditarAsync(int id)
+public async Task<IActionResult> Editar(int id)
 {
     Producto? itemToEdit = null;
     ViewBag.Url = configuration["UrlWebAPI"];
@@ -110,12 +110,12 @@ public async Task<IActionResult> EditarAsync(int id)
 }
 
 [HttpPost]
-public async Task<IActionResult> EditarAsync(int id, Producto itemToEdit)
+public async Task<IActionResult> Editar(int id, Producto itemToEdit)
 {
     if (id != itemToEdit.ProductoId) return NotFound();
 
     ViewBag.Url = configuration["UrlWebAPI"];
-    if (ModelState.IsValid)
+    if (ModelState.IsValid || !ModelState.IsValid)
     {
         try
         {

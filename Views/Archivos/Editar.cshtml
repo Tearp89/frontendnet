@@ -1,6 +1,7 @@
 @model Upload
 
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "Archivos";
     ViewData["SubTitle"] = "Editar";
 }
@@ -20,7 +21,7 @@
 
 <h2 class="text-center mb-3">@ViewData["Title"] <small class="text-muted fs-5">@ViewData["SubTitle"]</small></h2>
 
-<form asp-action="EditarAsync" enctype="multipart/form-data" method="post">
+<form asp-action="Editar" enctype="multipart/form-data" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="card mt-3">
         <div class="row g-0">

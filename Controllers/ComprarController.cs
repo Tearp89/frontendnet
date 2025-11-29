@@ -6,25 +6,69 @@ using Microsoft.AspNetCore.Mvc;
 namespace frontendnet;
 
 [Authorize(Roles = "Usuario")]
-public class ComprarController(ProductosClientService productos, IConfiguration configuration) : Controller
+public class ComprarController : Controller
 {
+    private readonly CarritoClienteService _carrito;
+    private readonly ProductosClientService _productos;
+
+    public ComprarController(CarritoClienteService carrito, ProductosClientService productos)
+    {
+        _carrito = carrito;
+        _productos = productos;
+    }
+
+    // LISTADO DE PRODUCTOS
     public async Task<IActionResult> Index(string? s)
     {
-        List<Producto>? lista = [];
-        try
-        {
-            lista = await productos.GetAsync(s);
-        }
-        catch (HttpRequestException ex)
-        {
-            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return RedirectToAction("Salir", "Auth");
-            }
-        }
-
-        ViewBag.Url = configuration["UrlWebAPI"];
-        ViewBag.search = s;
-        return View(lista);
+        // Obtener productos desde el API usando ProductosClientService
+        var productos = await _productos.GetAsync(s);  // ← List<Producto>
+        return View(productos);
     }
+
+    // VISTA DEL CARRITO
+    public async Task<IActionResult> Carrito()
+{
+    var carrito = await _carrito.GetAsync();  
+    return View("~/Views/Carrito/Index.cshtml", carrito);
+}
+
+
+    // ------------------ MÉTODOS DEL CARRITO ------------------
+
+    [HttpPost]
+    public async Task<IActionResult> AgregarItem(int productoId, int cantidad = 1)
+    {
+        await _carrito.AddItemAsync(productoId, cantidad);
+        return RedirectToAction("Carrito");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ActualizarItem(int id, int cantidad)
+    {
+        await _carrito.UpdateItemAsync(id, cantidad);
+        return RedirectToAction("Carrito");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EliminarItem(int id)
+    {
+        await _carrito.RemoveItemAsync(id);
+        return RedirectToAction("Carrito");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Vaciar()
+    {
+        await _carrito.ClearAsync();
+        return RedirectToAction("Carrito");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Checkout()
+    {
+        await _carrito.CheckoutAsync();
+        TempData["Mensaje"] = "Compra realizada con éxito";
+        return RedirectToAction("Carrito");
+    }
+
 }

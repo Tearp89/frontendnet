@@ -135,6 +135,8 @@ public async Task<IActionResult> Eliminar(int id, bool? showError = false)
         {
             return RedirectToAction("Salir", "Auth");
         }
+
+        return NotFound();
     }
     return View(itemToDelete);
 }

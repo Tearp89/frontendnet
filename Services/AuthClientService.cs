@@ -23,4 +23,11 @@ public class AuthClientService(HttpClient client, IHttpContextAccessor httpConte
         var authProperties = new AuthenticationProperties();
         await httpContextAccessor.HttpContext!.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
     }
+
+    public async Task RegistrarAsync(UsuarioPwd usuario) // <-- NUEVO MÉTODO
+    {
+        // Llama al nuevo endpoint de registro público
+        var response = await client.PostAsJsonAsync("api/auth/registro", usuario);
+        response.EnsureSuccessStatusCode();
+    }
 }

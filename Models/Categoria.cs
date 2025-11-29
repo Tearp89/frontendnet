@@ -11,5 +11,5 @@ public class Categoria
     public required string Nombre { get; set; }
 
     [Display(Name = "Eliminable")]
-    public bool Protegida { get; set; } = false;
+    public int Protegida { get; set; } = 0;
 }

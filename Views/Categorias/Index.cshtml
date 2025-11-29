@@ -1,6 +1,7 @@
 @model List<Categoria>
 
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "Categorías";
     ViewData["SubTitle"] = "Listado";
 }
@@ -51,7 +52,7 @@
                             @Html.DisplayFor(modelItem => item.Nombre)
                         </td>
                         <td>
-                            @(item.Protegida ? "Sí" : "No")
+                            @(item.Protegida == 1 ? "No" : "Sí")
                         </td>
                         <td width="1%">
                             <a class="text-decoration-none small text-uppercase" asp-action="Detalle" asp-route-id="@item.CategoriaId" title="Detalle">Detalle</a>

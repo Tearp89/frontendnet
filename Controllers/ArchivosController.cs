@@ -96,11 +96,18 @@ public async Task<IActionResult> EditarAsync(int id)
     try
     {
         Archivo? itemToEdit = await archivos.GetAsync(id);
+        
         ViewBag.ArchivoId = itemToEdit?.ArchivoId;
         ViewBag.Nombre = itemToEdit?.Nombre;
 
         if (itemToEdit == null) return NotFound();
-        return View(itemToEdit);
+        Upload model = new()
+        {
+            ArchivoId = itemToEdit.ArchivoId,
+            Nombre = itemToEdit.Nombre,
+            Portada = null!
+        };
+        return View(model);
     }
     catch (HttpRequestException ex)
     {

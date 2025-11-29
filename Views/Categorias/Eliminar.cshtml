@@ -1,6 +1,7 @@
 @model Categoria
 
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "Categorías";
     ViewData["SubTitle"] = "Eliminar";
 }
@@ -15,7 +16,7 @@
 
 <h2 class="text-center mb-3">@ViewData["Title"] <small class="text-muted fs-5">@ViewData["SubTitle"]</small></h2>
 
-@if (Model.Protegida)
+@if (Model.Protegida == 0)
 {
     <p class="text-danger">¿Está seguro que desea eliminar este elemento?</p>
     <p class="text-danger">@ViewData["ErrorMessage"]</p>

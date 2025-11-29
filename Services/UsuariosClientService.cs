@@ -11,7 +11,21 @@ public class UsuariosClientService(HttpClient client)
 
     public async Task<Usuario?> GetAsync(string email)
     {
-        return await client.GetFromJsonAsync<Usuario>($"api/usuarios/{email}");
+        var response = await client.GetAsync($"api/usuarios/{email}");
+    
+    // 2. Manejo de 404 (Not Found): Si el usuario no existe, devolvemos null
+    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+    {
+        return null;
+    }
+
+    // 3. Manejo de otros errores (401 Unauthorized, 500 Internal Server Error, etc.)
+    // EnsureSuccessStatusCode() lanza una HttpRequestException si el código no es de éxito (2xx)
+    response.EnsureSuccessStatusCode(); 
+    
+    // 4. Deserialización: Solo si el código de estado es de éxito (2xx), intentamos leer el JSON
+    return await response.Content.ReadFromJsonAsync<Usuario>();
+        
     }
 
     public async Task PostAsync(UsuarioPwd usuario)

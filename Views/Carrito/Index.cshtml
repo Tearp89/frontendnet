@@ -1,18 +1,83 @@
+@model CarritoData
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "Carrito de compras";
-    ViewData["SubTitle"] = "Listado";
+}
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success mb-3">
+        @TempData["Mensaje"]
+    </div>
 }
 
-<h2 class="text-center mb-3">@ViewData["Title"] <small class="text-muted fs-5">@ViewData["SubTitle"]</small></h2>
 
-<div class="row small mb-3">
-    <div class="col text-end">
-        Mostrando 0 elementos
-    </div>
+<h2>Carrito de compras</h2>
+
+@if (!Model.Items.Any())
+{
+    <p>No hay productos en el carrito.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>
+                    <strong>@item.Titulo</strong><br />
+                    <small>@item.Descripcion</small>
+                </td>
+
+                <td>
+    <form asp-action="ActualizarItem" method="post" class="d-flex gap-2">
+        <input type="hidden" name="id" value="@item.CarritoProducto.Id" />
+
+        <input type="number" name="cantidad" value="@item.CarritoProducto.Cantidad"
+               class="form-control form-control-sm" min="1" />
+
+        <button class="btn btn-primary btn-sm">Actualizar</button>
+    </form>
+</td>
+<td>
+    <form asp-action="EliminarItem" method="post">
+        <input type="hidden" name="id" value="@item.CarritoProducto.Id" />
+        <button class="btn btn-outline-danger btn-sm">X</button>
+    </form>
+</td>
+
+
+                <td>$@item.Precio</td>
+
+                <td>$@item.CarritoProducto.Subtotal</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <h3>Total: $@Model.Total</h3>
+}
+
+<div class="d-flex gap-3 mt-4">
+    <form asp-action="Checkout" method="post">
+        <button class="btn btn-success">
+            Finalizar compra
+        </button>
+    </form>
+
+    <form asp-action="Vaciar" method="post">
+        <button class="btn btn-outline-danger">
+            Vaciar carrito
+        </button>
+    </form>
 </div>
 
-<div class="mt-5">
-    <div class="alert alert-warning" role="alert">
-        No se han encontrado elementos. Inténtelo de nuevo más tarde.
-    </div>
-</div>

@@ -5,13 +5,12 @@ html[data-bs-theme="dark"] body {
 
 html[data-bs-theme="light"] body {
     --mercadolibre-bg: #ffe600;
-    --logo: url(../images/logo.png) no-repeat; 
+    --logo: url(../images/logo.png) no-repeat;
 }
 
 .bg-mercadolibre {
     background-color: var(--mercadolibre-bg) !important;
 }
-
 
 .logo {
     display: block;
@@ -20,5 +19,5 @@ html[data-bs-theme="light"] body {
     background: var(--logo);
     background-size: 100px 25px;
     height: 25px;
-    width: 25px;
+    width: 100px;
 }
