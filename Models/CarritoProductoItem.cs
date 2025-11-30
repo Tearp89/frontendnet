@@ -6,7 +6,8 @@ public class CarritoProductoItem
     public string Titulo { get; set; } = "";
     public string? Descripcion { get; set; }
     public decimal Precio { get; set; }
-    public string? ArchivoId { get; set; }
+    [JsonPropertyName("archivoid")]
+    public int? ArchivoId { get; set; }
 
     // ESTA ES LA CLAVE:
     [JsonPropertyName("carritoproducto")]
