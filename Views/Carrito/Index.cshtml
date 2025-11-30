@@ -67,6 +67,9 @@ else
     <h3>Total: $@Model.Total</h3>
 }
 
+@if (Model.Items != null && Model.Items.Count > 0)
+{
+
 <div class="d-flex gap-3 mt-4">
 <form id="formVaciar" asp-action="Vaciar" method="post"></form>
 
@@ -88,5 +91,7 @@ else
 </button>
 
 </div>
+
+}
 
 
