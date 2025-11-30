@@ -1,12 +1,25 @@
-const imagen = document.querySelector(".portada");
-const archivo = document.getElementById("ArchivoId");
+document.addEventListener('DOMContentLoaded', function () {
+    const selectArchivo = document.getElementById('ArchivoId');
+    const imgPortada = document.getElementById('imgPortada') 
+                       || document.querySelector('.portada');
 
-function CargaImagen() {
+    if (!selectArchivo || !imgPortada) return;
 
-    if (archivo.selectedIndex > 0) {
-        const path = imagen.dataset.url + "/api/archivos/" + archivo.options[archivo.selectedIndex].value;
-        imagen.src = path;
+    const baseUrl = imgPortada.dataset.url;
+    const placeholder = 'https://via.placeholder.com/300x450';
+
+    function actualizarPreview() {
+        const archivoId = selectArchivo.value;
+
+        if (!archivoId) {
+            imgPortada.src = placeholder;
+        } else {
+            imgPortada.src = `${baseUrl}/api/archivos/${archivoId}`;
+        }
     }
-}
 
-archivo.addEventListener("change", CargaImagen);
+    selectArchivo.addEventListener('change', actualizarPreview);
+
+    // por si ya viene algo seleccionado (en Editar)
+    actualizarPreview();
+});
